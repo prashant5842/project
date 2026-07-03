@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -180,13 +180,14 @@ export function ReportsPage() {
       return acc;
     }, {} as Record<string, number>);
 
-    const total = Object.values(categoryTotals).reduce((sum, v) => sum + v, 0);
+    const values = Object.values(categoryTotals) as number[];
+    const total = values.reduce((sum, v) => sum + v, 0);
 
     return Object.entries(categoryTotals)
       .map(([category, amount]) => ({
         category,
-        amount,
-        percentage: total > 0 ? (amount / total) * 100 : 0,
+        amount: amount as number,
+        percentage: total > 0 ? ((amount as number) / total) * 100 : 0,
       }))
       .sort((a, b) => b.amount - a.amount);
   }, [filteredExpenses]);
@@ -430,7 +431,7 @@ export function ReportsPage() {
                           border: '1px solid #374151',
                           borderRadius: '8px',
                         }}
-                        formatter={(value: number) => formatCurrency(value, currency)}
+                        formatter={(value) => formatCurrency(Number(value), currency)}
                       />
                       <Legend />
                       <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981' }} name="Income" />
@@ -474,7 +475,7 @@ export function ReportsPage() {
                           border: '1px solid #374151',
                           borderRadius: '8px',
                         }}
-                        formatter={(value: number) => formatCurrency(value, currency)}
+                        formatter={(value) => formatCurrency(Number(value), currency)}
                       />
                       <Legend />
                     </PieChart>
@@ -504,7 +505,7 @@ export function ReportsPage() {
                         border: '1px solid #374151',
                         borderRadius: '8px',
                       }}
-                      formatter={(value: number) => formatCurrency(value, currency)}
+                      formatter={(value) => formatCurrency(Number(value), currency)}
                     />
                     <Bar dataKey="amount" fill="#3b82f6" radius={[0, 4, 4, 0]}>
                       {spendingByCategory.map((entry, index) => (

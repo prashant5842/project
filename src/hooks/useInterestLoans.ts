@@ -203,8 +203,8 @@ export function useInterestLoans() {
       }
 
       // Update the payment
-      const newAmountReceived = Number(payment.amount_received) + input.amount;
-      const newPendingAmount = Number(payment.due_amount) - newAmountReceived;
+      const newAmountReceived = Number(payment!.amount_received) + input.amount;
+      const newPendingAmount = Number(payment!.due_amount) - newAmountReceived;
       const newStatus: InterestPaymentStatus = newPendingAmount <= 0 ? 'Paid' : newAmountReceived > 0 ? 'Partial' : 'Pending';
 
       const { error: paymentUpdateError } = await supabase
@@ -216,7 +216,7 @@ export function useInterestLoans() {
           status: newStatus,
           notes: input.notes,
         })
-        .eq('id', payment.id);
+        .eq('id', payment!.id);
 
       if (paymentUpdateError) throw paymentUpdateError;
 

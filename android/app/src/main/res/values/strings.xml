@@ -4,6 +4,7 @@
     <string name="title_activity_main">FinFlow</string>
     <string name="package_name">com.prashant.FinFlow</string>
     <string name="custom_url_scheme">com.prashant.FinFlow</string>
-    <!-- Replace the value below with your Web client ID from Firebase (OAuth 2.0 client ID) -->
-    <string name="default_web_client_id">REPLACE_WITH_WEB_CLIENT_ID</string>
+    <!-- Web client ID from Firebase Console > Project Settings > General > Your apps > Web client ID -->
+    <!-- Obtain from: https://console.firebase.google.com/project/finflow-c307f/settings/general/web -->
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
 </resources>

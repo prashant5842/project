@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Sun, Moon, Globe, Loader2, Info } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings';
 import { useToast } from '../hooks/useToast';

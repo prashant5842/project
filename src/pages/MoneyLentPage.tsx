@@ -112,7 +112,6 @@ export function MoneyLentPage() {
   // Interest loans
   const {
     loans: interestLoans,
-    payments: interestPayments,
     loading: interestLoading,
     addLoan,
     updateLoan,

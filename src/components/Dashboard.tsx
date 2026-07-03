@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   AreaChart,
   Area,
@@ -194,7 +193,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   }}
                   labelStyle={{ color: '#9ca3af' }}
                   itemStyle={{ color: '#f3f4f6' }}
-                  formatter={(value: number) => [formatCurrency(value, currency), 'Expenses']}
+                  formatter={(value) => [formatCurrency(Number(value), currency), 'Expenses']}
                 />
                 <Area
                   type="monotone"
@@ -225,7 +224,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   }}
                   labelStyle={{ color: '#9ca3af' }}
                   itemStyle={{ color: '#f3f4f6' }}
-                  formatter={(value: number) => formatCurrency(value, currency)}
+                  formatter={(value) => formatCurrency(Number(value), currency)}
                 />
                 <Legend wrapperStyle={{ paddingTop: '10px' }} />
                 <Bar dataKey="income" fill="#10b981" name="Income" radius={[4, 4, 0, 0]} />
@@ -267,7 +266,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                       border: '1px solid #374151',
                       borderRadius: '8px',
                     }}
-                    formatter={(value: number) => formatCurrency(value, currency)}
+                    formatter={(value) => formatCurrency(Number(value), currency)}
                   />
                   <Legend
                     wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }}

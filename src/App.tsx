@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { SettingsProvider } from './hooks/useSettings';
 import { ToastProvider } from './hooks/useToast';
 import { Sidebar, type Page } from './components/Sidebar';

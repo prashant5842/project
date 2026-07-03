@@ -1,7 +1,7 @@
 package com.prashant.FinFlow
 
-import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import com.getcapacitor.BridgeActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -17,16 +17,28 @@ import com.google.firebase.auth.ktx.auth
 class MainActivity : BridgeActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-    private val RC_SIGN_IN = 9001
+
+    private val signInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        if (result.resultCode == RESULT_OK && data != null) {
+            try {
+                val account = GoogleSignIn.getSignedInAccountFromIntent(data)
+                    .getResult(ApiException::class.java)
+                firebaseAuthWithGoogle(account?.idToken)
+            } catch (e: ApiException) {
+                // Sign-in failed
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase
         FirebaseApp.initializeApp(this)
         auth = Firebase.auth
 
-        // Configure Google Sign In. Make sure to set `default_web_client_id` in strings.xml
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(resources.getIdentifier("default_web_client_id", "string", packageName)))
             .requestEmail()
@@ -34,47 +46,28 @@ class MainActivity : BridgeActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Add a native Google Sign-In button overlayed on the Capacitor WebView
         try {
             val root = findViewById<android.view.ViewGroup>(android.R.id.content)
             val signInButton = SignInButton(this)
             signInButton.setSize(SignInButton.SIZE_WIDE)
-            signInButton.setOnClickListener {
-                startGoogleSignIn()
-            }
+            signInButton.setOnClickListener { startGoogleSignIn() }
 
             val params = android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
-            val margin = (16 * resources.displayMetrics.density).toInt()
-            params.setMargins(margin, margin, margin, margin)
-
+            ).apply {
+                gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
+                val margin = (16 * resources.displayMetrics.density).toInt()
+                setMargins(margin, margin, margin, margin)
+            }
             root.addView(signInButton, params)
         } catch (e: Exception) {
-            // If overlaying fails, ignore — web UI can still call native method.
+            // Button overlay failed - web UI can still trigger sign-in
         }
     }
 
-    // Call this to start Google Sign-In flow from native Android side
     fun startGoogleSignIn() {
-        val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                firebaseAuthWithGoogle(account?.idToken)
-            } catch (e: ApiException) {
-                // Sign-in failed, handle appropriately
-            }
-        }
+        signInLauncher.launch(googleSignInClient.signInIntent)
     }
 
     private fun firebaseAuthWithGoogle(idToken: String?) {
@@ -83,11 +76,7 @@ class MainActivity : BridgeActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Signed in successfully
-                    val user = auth.currentUser
-                    // TODO: communicate result back to Capacitor/JS if needed
-                } else {
-                    // Sign in failed
+                    // Signed in - sync state to WebView if needed
                 }
             }
     }

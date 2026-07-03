@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Download, Upload, Trash2, Loader2, FileJson, AlertTriangle } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Download, Upload, Trash2, Loader2, FileJson } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/useToast';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -237,7 +237,8 @@ export function BackupPage() {
             </p>
             <button
               onClick={() => setShowResetConfirm(true)}
-              className="mt-4 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              disabled={resetting}
+              className="mt-4 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
             >
               <Trash2 className="w-4 h-4" />
               Reset All Data
