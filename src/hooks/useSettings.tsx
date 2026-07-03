@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Settings } from '../types';
 
@@ -8,6 +8,8 @@ interface SettingsContextType {
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
   currency: string;
   theme: 'dark' | 'light';
+  openingBalance: number;
+  setupCompleted: boolean;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -16,6 +18,8 @@ const defaultSettings: Settings = {
   id: 'default',
   currency: 'USD',
   theme: 'dark',
+  opening_balance: 0,
+  setup_completed: false,
   updated_at: new Date().toISOString(),
 };
 
@@ -45,7 +49,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         try {
           const { data: newSettings, error: insertError } = await supabase
             .from('settings')
-            .insert({ currency: 'USD', theme: 'dark' })
+            .insert({ currency: 'USD', theme: 'dark', opening_balance: 0, setup_completed: false })
             .select()
             .single();
 
@@ -107,6 +111,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         updateSettings,
         currency: settings?.currency || 'USD',
         theme: settings?.theme || 'dark',
+        openingBalance: settings?.opening_balance ?? 0,
+        setupCompleted: settings?.setup_completed ?? false,
       }}
     >
       {children}

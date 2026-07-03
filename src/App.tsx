@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { SettingsProvider } from './hooks/useSettings';
+import { useState, useEffect } from 'react';
+import { SettingsProvider, useSettings } from './hooks/useSettings';
 import { ToastProvider } from './hooks/useToast';
 import { Sidebar, type Page } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
@@ -10,10 +10,30 @@ import { SavingsPage } from './pages/SavingsPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { BackupPage } from './pages/BackupPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { OpeningBalanceModal } from './components/OpeningBalanceModal';
+import { Loader2 } from 'lucide-react';
 
 function AppContent() {
+  const { loading, setupCompleted } = useSettings();
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showSetupModal, setShowSetupModal] = useState(false);
+
+  // Show opening balance modal if setup not completed
+  useEffect(() => {
+    if (!loading && !setupCompleted) {
+      setShowSetupModal(true);
+    }
+  }, [loading, setupCompleted]);
+
+  // Show opening balance modal if setup not completed
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+      </div>
+    );
+  }
 
   const renderPage = () => {
     switch (currentPage) {
@@ -46,6 +66,10 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
+      {showSetupModal && (
+        <OpeningBalanceModal onComplete={() => setShowSetupModal(false)} />
+      )}
+
       <Sidebar
         currentPage={currentPage}
         onNavigate={setCurrentPage}

@@ -46,7 +46,8 @@ interface DashboardProps {
 export function Dashboard({ onNavigate }: DashboardProps) {
   const { settings } = useSettings();
   const {
-    totalBalance,
+    openingBalance,
+    currentBalance,
     totalIncome,
     totalExpenses,
     totalSavings,
@@ -85,7 +86,8 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   }
 
   const metrics = [
-    { label: 'Current Balance', value: totalBalance, icon: TrendingUp, color: 'emerald' },
+    { label: 'Opening Balance', value: openingBalance, icon: TrendingUp, color: 'gray' },
+    { label: 'Current Balance', value: currentBalance, icon: TrendingUp, color: 'emerald', highlight: true },
     { label: 'Total Income', value: totalIncome, icon: TrendingUp, color: 'blue' },
     { label: 'Total Expenses', value: totalExpenses, icon: TrendingDown, color: 'red' },
     { label: 'Total Savings', value: totalSavings, icon: PiggyBank, color: 'purple' },
@@ -110,6 +112,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
     amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     teal: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
     orange: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+    gray: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
   };
 
   return (
@@ -124,7 +127,11 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         {metrics.map((metric, index) => (
           <div
             key={index}
-            className={`rounded-xl border p-4 bg-gray-800/50 backdrop-blur-sm border-gray-700 hover:border-gray-600 transition-all duration-200`}
+            className={`rounded-xl border p-4 backdrop-blur-sm transition-all duration-200 ${
+              metric.highlight
+                ? 'bg-gradient-to-br from-emerald-600/20 to-teal-600/20 border-emerald-500/30'
+                : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
+            }`}
           >
             <div className="flex items-center justify-between">
               <div className={`p-2 rounded-lg border ${colorClasses[metric.color]}`}>

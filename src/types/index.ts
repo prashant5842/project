@@ -83,6 +83,8 @@ export interface Settings {
   id: string;
   currency: string;
   theme: 'dark' | 'light';
+  opening_balance: number;
+  setup_completed: boolean;
   updated_at: string;
 }
 

@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase';
 import { format, startOfMonth, endOfMonth, subMonths, parseISO, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
 
 interface DashboardData {
-  totalBalance: number;
+  openingBalance: number;
+  currentBalance: number;
   totalIncome: number;
   totalExpenses: number;
   totalSavings: number;
@@ -53,7 +54,8 @@ const getEmptyDashboardData = (): DashboardData => {
   }));
 
   return {
-    totalBalance: 0,
+    openingBalance: 0,
+    currentBalance: 0,
     totalIncome: 0,
     totalExpenses: 0,
     totalSavings: 0,
@@ -167,6 +169,20 @@ export function useDashboard() {
         // Gracefully handle - use empty array
       }
 
+      // Fetch settings for opening balance
+      let openingBalance = 0;
+      try {
+        const { data: settingsData, error: settingsError } = await supabase
+          .from('settings')
+          .select('opening_balance')
+          .maybeSingle();
+        if (!settingsError && settingsData) {
+          openingBalance = Number(settingsData.opening_balance) || 0;
+        }
+      } catch {
+        // Gracefully handle - use 0
+      }
+
       // Calculate totals
       const totalIncome = incomes.reduce((sum, i) => sum + Number(i.amount), 0);
       const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -174,6 +190,9 @@ export function useDashboard() {
       const moneyLent = moneyLentData.reduce((sum, m) => sum + Number(m.amount_given), 0);
       const moneyReceived = moneyLentData.reduce((sum, m) => sum + Number(m.amount_returned), 0);
       const pendingAmount = moneyLentData.reduce((sum, m) => sum + Number(m.remaining_balance), 0);
+
+      // Current balance = Opening Balance + Total Income - Total Expenses - Money Lent + Money Received
+      const currentBalance = openingBalance + totalIncome - totalExpenses - moneyLent + moneyReceived;
 
       // Interest loan metrics
       const activeLoans = interestLoans.filter((l: any) => l.status === 'Active');
@@ -272,7 +291,8 @@ export function useDashboard() {
         .slice(0, 10);
 
       setData({
-        totalBalance: totalIncome - totalExpenses - moneyLent + moneyReceived,
+        openingBalance,
+        currentBalance,
         totalIncome,
         totalExpenses,
         totalSavings,

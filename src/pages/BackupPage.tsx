@@ -125,6 +125,13 @@ export function BackupPage() {
         await supabase.from('interest_payments').insert(data.interest_payments);
       }
 
+      // Import settings if present (update existing settings)
+      if (data.settings?.length > 0) {
+        const settingsData = data.settings[0];
+        const { id, ...updates } = settingsData;
+        await supabase.from('settings').update(updates).neq('id', '0');
+      }
+
       showToast('Data imported successfully', 'success');
     } catch (error) {
       console.error('Import error:', error);
@@ -150,8 +157,18 @@ export function BackupPage() {
         supabase.from('interest_payments').delete().neq('id', 0),
       ]);
 
+      // Reset settings to defaults (opening balance to 0, setup not completed)
+      await supabase.from('settings').update({
+        opening_balance: 0,
+        setup_completed: false,
+        updated_at: new Date().toISOString()
+      }).neq('id', 0);
+
       showToast('All data has been reset', 'success');
       setShowResetConfirm(false);
+
+      // Reload the page to trigger the opening balance modal
+      window.location.reload();
     } catch (error) {
       console.error('Reset error:', error);
       showToast('Failed to reset data', 'error');

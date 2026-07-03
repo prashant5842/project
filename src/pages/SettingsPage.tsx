@@ -1,13 +1,15 @@
-import { useState } from 'react';
-import { Sun, Moon, Globe, Loader2, Info } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
+import { Sun, Moon, Globe, Loader2, Info, Wallet } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings';
 import { useToast } from '../hooks/useToast';
-import { CURRENCIES } from '../utils/helpers';
+import { CURRENCIES, formatCurrency } from '../utils/helpers';
 
 export function SettingsPage() {
-  const { settings, loading, updateSettings } = useSettings();
+  const { settings, loading, updateSettings, currency } = useSettings();
   const { showToast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [editingOpeningBalance, setEditingOpeningBalance] = useState(false);
+  const [openingBalanceValue, setOpeningBalanceValue] = useState('');
 
   const handleThemeChange = async (theme: 'dark' | 'light') => {
     setSaving(true);
@@ -33,6 +35,26 @@ export function SettingsPage() {
     }
   };
 
+  const handleOpeningBalanceSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const value = parseFloat(openingBalanceValue);
+    if (isNaN(value)) {
+      showToast('Please enter a valid amount', 'error');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await updateSettings({ opening_balance: value });
+      showToast('Opening balance updated', 'success');
+      setEditingOpeningBalance(false);
+    } catch {
+      showToast('Failed to update opening balance', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -46,6 +68,84 @@ export function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-100">Settings</h1>
         <p className="text-gray-400 mt-1">Customize your experience</p>
+      </div>
+
+      {/* Opening Balance */}
+      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-100 mb-4">Opening Balance</h3>
+
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-gray-400 mb-3">
+              This is the starting balance for your account. It's used to calculate your current balance.
+            </p>
+
+            {editingOpeningBalance ? (
+              <form onSubmit={handleOpeningBalanceSubmit} className="space-y-3">
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'INR' ? '₹' : currency}
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={openingBalanceValue}
+                    onChange={(e) => setOpeningBalanceValue(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                    placeholder="0.00"
+                    autoFocus
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingOpeningBalance(false)}
+                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                    Save
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <Wallet className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Current Opening Balance</p>
+                    <p className="text-xl font-semibold text-gray-100">
+                      {formatCurrency(settings?.opening_balance || 0, currency)}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setOpeningBalanceValue((settings?.opening_balance || 0).toString());
+                    setEditingOpeningBalance(true);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-lg transition-colors"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <Info className="w-4 h-4" />
+            <span>Current Balance = Opening Balance + Income - Expenses - Money Lent + Money Received</span>
+          </div>
+        </div>
       </div>
 
       {/* Theme Settings */}
