@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Search, Loader2, TrendingDown, Filter } from 'lucide-react';
 import { useExpenses } from '../hooks/useExpenses';
 import { useSettings } from '../hooks/useSettings';
@@ -103,7 +103,7 @@ export function ExpensesPage() {
     setFormData(initialFormData);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.category || !formData.amount || !formData.date || !formData.payment_method) {
       showToast('Please fill in all required fields', 'error');

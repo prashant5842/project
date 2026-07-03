@@ -55,7 +55,7 @@ function AppContent() {
 
       {/* Main content */}
       <main className="lg:pl-64 min-h-screen">
-        <div className="p-4 lg:p-8 lg:pt-6">
+        <div className="p-4 pt-16 lg:pt-6 lg:p-8">
           {renderPage()}
         </div>
       </main>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, type ChangeEvent } from 'react';
 import { Download, Upload, Trash2, Loader2, FileJson } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/useToast';
@@ -10,6 +10,8 @@ interface BackupData {
   money_lent: any[];
   repayments: any[];
   savings_goals: any[];
+  interest_loans: any[];
+  interest_payments: any[];
   settings: any[];
   exportDate: string;
   version: string;
@@ -26,12 +28,14 @@ export function BackupPage() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const [incomes, expenses, moneyLent, repayments, savingsGoals, settings] = await Promise.all([
+      const [incomes, expenses, moneyLent, repayments, savingsGoals, interestLoans, interestPayments, settings] = await Promise.all([
         supabase.from('incomes').select('*'),
         supabase.from('expenses').select('*'),
         supabase.from('money_lent').select('*'),
         supabase.from('repayments').select('*'),
         supabase.from('savings_goals').select('*'),
+        supabase.from('interest_loans').select('*'),
+        supabase.from('interest_payments').select('*'),
         supabase.from('settings').select('*'),
       ]);
 
@@ -41,6 +45,8 @@ export function BackupPage() {
         money_lent: moneyLent.data || [],
         repayments: repayments.data || [],
         savings_goals: savingsGoals.data || [],
+        interest_loans: interestLoans.data || [],
+        interest_payments: interestPayments.data || [],
         settings: settings.data || [],
         exportDate: new Date().toISOString(),
         version: '1.0',
@@ -65,7 +71,7 @@ export function BackupPage() {
     }
   };
 
-  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -92,6 +98,8 @@ export function BackupPage() {
         supabase.from('repayments').delete().neq('id', 0),
         supabase.from('money_lent').delete().neq('id', 0),
         supabase.from('savings_goals').delete().neq('id', 0),
+        supabase.from('interest_loans').delete().neq('id', 0),
+        supabase.from('interest_payments').delete().neq('id', 0),
       ]);
 
       // Insert new data
@@ -109,6 +117,12 @@ export function BackupPage() {
       }
       if (data.savings_goals?.length > 0) {
         await supabase.from('savings_goals').insert(data.savings_goals);
+      }
+      if (data.interest_loans?.length > 0) {
+        await supabase.from('interest_loans').insert(data.interest_loans);
+      }
+      if (data.interest_payments?.length > 0) {
+        await supabase.from('interest_payments').insert(data.interest_payments);
       }
 
       showToast('Data imported successfully', 'success');
@@ -132,6 +146,8 @@ export function BackupPage() {
         supabase.from('repayments').delete().neq('id', 0),
         supabase.from('money_lent').delete().neq('id', 0),
         supabase.from('savings_goals').delete().neq('id', 0),
+        supabase.from('interest_loans').delete().neq('id', 0),
+        supabase.from('interest_payments').delete().neq('id', 0),
       ]);
 
       showToast('All data has been reset', 'success');

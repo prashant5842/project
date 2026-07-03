@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Search, Loader2, HandCoins, AlertTriangle, History, DollarSign, Phone, Calendar, Percent, Clock, ChevronRight, X, Check } from 'lucide-react';
 import { useMoneyLent } from '../hooks/useMoneyLent';
 import { useInterestLoans } from '../hooks/useInterestLoans';
@@ -214,7 +214,7 @@ export function MoneyLentPage() {
     setFormData(initialFormData);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.person_name || !formData.amount_given || !formData.date_given || !formData.expected_return_date) {
       showToast('Please fill in all required fields', 'error');
@@ -252,7 +252,7 @@ export function MoneyLentPage() {
     setRepaymentModalOpen(true);
   };
 
-  const handleRepaymentSubmit = async (e: React.FormEvent) => {
+  const handleRepaymentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedRecord || !repaymentData.amount || !repaymentData.date) {
       showToast('Please fill in all required fields', 'error');
@@ -334,7 +334,7 @@ export function MoneyLentPage() {
     setInterestLoanData(initialInterestLoanData);
   };
 
-  const handleInterestLoanSubmit = async (e: React.FormEvent) => {
+  const handleInterestLoanSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!interestLoanData.borrower_name || !interestLoanData.principal_amount || !interestLoanData.loan_date ||
         !interestLoanData.principal_return_date || !interestLoanData.monthly_interest_rate) {
@@ -377,7 +377,7 @@ export function MoneyLentPage() {
     setInterestPaymentModalOpen(true);
   };
 
-  const handleInterestPaymentSubmit = async (e: React.FormEvent) => {
+  const handleInterestPaymentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedInterestLoan || !interestPaymentData.amount || !interestPaymentData.payment_date) {
       showToast('Please fill in all required fields', 'error');

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Search, Loader2, TrendingUp } from 'lucide-react';
 import { useIncome } from '../hooks/useIncome';
 import { useSettings } from '../hooks/useSettings';
@@ -66,7 +66,7 @@ export function IncomePage() {
     setFormData(initialFormData);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.source || !formData.amount || !formData.date) {
       showToast('Please fill in all required fields', 'error');

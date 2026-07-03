@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Plus, Pencil, Trash2, Loader2, PiggyBank, TrendingUp, Calendar, DollarSign } from 'lucide-react';
 import { useSavingsGoals } from '../hooks/useSavingsGoals';
 import { useSettings } from '../hooks/useSettings';
@@ -68,7 +68,7 @@ export function SavingsPage() {
     setFormData(initialFormData);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.target_amount || !formData.deadline) {
       showToast('Please fill in all required fields', 'error');
@@ -105,7 +105,7 @@ export function SavingsPage() {
     setAddFundsModalOpen(true);
   };
 
-  const handleAddFunds = async (e: React.FormEvent) => {
+  const handleAddFunds = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedGoal || !fundsData.amount) return;
 
